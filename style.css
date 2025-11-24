@@ -366,8 +366,12 @@ button:active {
   }
   
   #view-container > div:first-child {
-    gap: 20px;
-  }
+  display: flex;
+  flex-wrap: wrap;
+  gap: 28px;
+  justify-content: center;
+}
+
   
   .card { 
     width: 100%;
@@ -378,4 +382,11 @@ button:active {
     width: 92vw;
     padding: 24px;
   }
+}
+.card-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 28px;
+  justify-content: center; /* Center horizontally */
+  width: 100%;
 }

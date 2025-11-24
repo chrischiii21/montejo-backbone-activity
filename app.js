@@ -109,14 +109,14 @@ const CarListView = Backbone.View.extend({
         if(this.role === 'admin') {
             html += `<button id="add-car-btn">➕ Add Car</button>`;
         }
-        html += '<div>';
+        html += '<div class="card-row">';
         this.collection.each(car => {
             const cardImg = car.get('photo') || 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=400&h=300&fit=crop';
             html += `
                 <div class="card">
                     <img class="card-photo" src="${cardImg}" alt="Car Image" />
                     <div class="card-model">${car.get('model')}</div>
-                    <div class="card-price">$${car.get('price')}</div>
+                    <div class="card-price">₱${car.get('price')}</div>
                     ${car.get('status') === 'Available' ?
                       `<div class="card-status" style="color: #0891b2; background: rgba(8, 145, 178, 0.1);">${car.get('status')}</div>` :
                       `<div class="card-status" style="color: #ef4444; background: rgba(239, 68, 68, 0.1);">${car.get('status')}</div>`}
