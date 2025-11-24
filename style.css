@@ -1,0 +1,47 @@
+body { font-family: Arial, Helvetica, sans-serif; margin:0; background:#eceff1; }
+header { background: #263238; color: #fff; padding: 15px 26px; display:flex; align-items:center; justify-content:space-between; }
+nav { background: #37474f; color:#fff; padding:12px; }
+nav .tab-btn { background: #fff; color: #263238; border: none; border-radius: 20px; padding: 9px 20px 8px; margin-right:10px; cursor:pointer; font-weight: bold; }
+nav .tab-btn.active { background: #1976d2; color: #fff; }
+#view-container { padding: 32px; display: flex; flex-wrap: wrap; gap: 24px 18px; min-height: 65vh; }
+.card { background: #fff; box-shadow: 0 2px 8px rgba(38, 50, 56, 0.10); margin-bottom:0; border-radius:10px; padding:18px 14px; width: 270px; display:flex; flex-direction:column; align-items:center; position:relative; }
+.card-photo { width: 220px; height: 120px; background: #cfd8dc; object-fit:cover; border-radius:8px; margin-bottom:13px; border: 1px solid #b0bec5; }
+.card-model { font-size: 1.09em; font-weight: bold; margin-bottom:7px; color:#263238; text-align:center; }
+.card-price { color: #00bfae; font-size:1.01em; margin-bottom:6px; font-weight:600; }
+.card-status { font-size:0.97em; color:#b71c1c; margin-bottom:8px; }
+.card-buttons { display: flex; gap: 8px; margin-top:10px; }
+.card-buttons button { min-width: 66px; }
+.modal { display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.16); justify-content:center; align-items:center; z-index:999; }
+.modal-content { background:#fff; padding:23px; border-radius:14px; width:350px; position:relative;}
+input[type="text"], input[type="file"], select { width:100%; padding:8px; margin-bottom:14px; border-radius:5px; border:1px solid #b0bec5; background:#f5f5f5;}
+button { padding:7px 17px; border:none; border-radius:20px; background:#1976d2; color:#fff; margin-top:7px; cursor:pointer; font-weight:500; }
+button:hover { background:#1565c0; }
+.hidden { display:none; }
+#change-role-btn { border-radius:15px; padding:8px 13px; background:#00bfae; color:#263238; font-weight:bold; border:none; cursor:pointer; }
+.upload-label {
+  display: inline-block;
+  padding: 7px 17px;
+  background: #1976d2;
+  color: #fff;
+  border-radius: 20px;
+  cursor: pointer;
+  margin-bottom: 14px;
+  font-weight: 500;
+}
+.upload-label:hover { background:#1565c0; }
+#car-photo-preview {
+  width: 220px;
+  height: 120px;
+  background: #cfd8dc;
+  object-fit:cover;
+  border-radius:8px;
+  margin-bottom:12px;
+  border: 1px solid #b0bec5;
+  display: block;
+}
+#car-photo { display: none; } /* Hide actual file input */
+@media (max-width: 700px){
+    #view-container { padding:12px; gap:13px 7px; }
+    .card { width:100%; min-width:215px; }
+    .modal-content { width:92vw;}
+}

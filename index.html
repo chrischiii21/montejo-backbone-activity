@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Car Showroom Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.13.6/underscore-min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.4.1/backbone-min.js"></script>
+    <style>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body { 
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  margin: 0; 
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+}
+
+header { 
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  color: #fff; 
+  padding: 22px 32px;
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+header h1 {
+  font-size: 1.7em;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+}
+
+nav { 
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(10px);
+  padding: 18px 32px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  border-bottom: 3px solid #667eea;
+}
+
+nav .tab-btn { 
+  background: transparent;
+  color: #4a5568;
+  border: 2px solid #e2e8f0;
+  border-radius: 24px;
+  padding: 11px 26px;
+  margin-right: 12px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  font-size: 0.95em;
+}
+
+nav .tab-btn:hover {
+  border-color: #667eea;
+  color: #667eea;
+  transform: translateY(-2px);
+}
+
+nav .tab-btn.active { 
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+#view-container { 
+  padding: 40px 32px;
+  min-height: 65vh;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+#view-container > div:first-child {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 28px;
+}
+
+#view-container h2 {
+  width: 100%;
+  color: #fff;
+  font-size: 1.8em;
+  margin-bottom: 24px;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+#view-container > button {
+  margin-bottom: 24px;
+}
+
+.card { 
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  border-radius: 16px;
+  padding: 20px;
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255,255,255,0.8);
+}
+
+.card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.2);
+}
+
+.card-photo { 
+  width: 100%;
+  height: 180px;
+  background: linear-gradient(135deg, #e0e7ff 0%, #f0f4ff 100%);
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  border: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.card-model { 
+  font-size: 1.25em;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: #1a1a2e;
+  text-align: center;
+  line-height: 1.3;
+}
+
+.card-price { 
+  color: #10b981;
+  font-size: 1.35em;
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+
+.card-status { 
+  font-size: 0.9em;
+  margin-bottom: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 4px 12px;
+  border-radius: 12px;
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.card-buttons { 
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+  width: 100%;
+}
+
+.card-buttons button { 
+  flex: 1;
+  padding: 10px 16px;
+  font-size: 0.9em;
+  font-weight: 600;
+  min-width: 66px;
+}
+
+.modal { 
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(4px);
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.modal-content { 
+  background: #fff;
+  padding: 32px;
+  border-radius: 20px;
+  width: 420px;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modal-content h3 {
+  margin-bottom: 24px;
+  color: #1a1a2e;
+  font-size: 1.6em;
+  font-weight: 700;
+}
+
+input[type="text"], 
+input[type="email"],
+input[type="file"], 
+select { 
+  width: 100%;
+  padding: 12px 16px;
+  margin-bottom: 18px;
+  border-radius: 10px;
+  border: 2px solid #e2e8f0;
+  background: #f8fafc;
+  font-size: 0.95em;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+input:focus, select:focus {
+  outline: none;
+  border-color: #667eea;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+button { 
+  padding: 12px 24px;
+  border: none;
+  border-radius: 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  font-size: 0.95em;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  margin-top: 8px;
+  font-family: inherit;
+}
+
+button:hover { 
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+.hidden { 
+  display: none;
+}
+
+#change-role-btn { 
+  border-radius: 24px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  transition: all 0.3s ease;
+  margin-top: 0;
+}
+
+#change-role-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+}
+
+.upload-label {
+  display: inline-block;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  border-radius: 24px;
+  cursor: pointer;
+  margin-bottom: 18px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  text-align: center;
+  display: block;
+}
+
+.upload-label:hover { 
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+#car-photo-preview,
+#car-photo-preview-edit {
+  width: 100%;
+  height: 180px;
+  background: linear-gradient(135deg, #e0e7ff 0%, #f0f4ff 100%);
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 18px;
+  border: 2px dashed #cbd5e1;
+  display: block;
+}
+
+#car-photo,
+#car-photo-edit { 
+  display: none;
+}
+
+#add-car-btn {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+#add-car-btn:hover {
+  box-shadow: 0 6px 16px rgba(245, 158, 11, 0.4);
+}
+
+.delete-car-btn {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3) !important;
+}
+
+.delete-car-btn:hover {
+  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4) !important;
+}
+
+.buy-now-btn,
+.edit-car-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+}
+
+#role-modal .modal-content {
+  text-align: center;
+}
+
+#role-modal .modal-content button {
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+#role-modal .modal-content button:last-child {
+  margin-bottom: 0;
+}
+
+@media (max-width: 700px) {
+  header {
+    padding: 18px 20px;
+  }
+  
+  header h1 {
+    font-size: 1.3em;
+  }
+  
+  nav {
+    padding: 14px 20px;
+  }
+  
+  nav .tab-btn {
+    padding: 9px 18px;
+    font-size: 0.85em;
+    margin-right: 8px;
+    margin-bottom: 8px;
+  }
+  
+  #view-container { 
+    padding: 24px 16px;
+  }
+  
+  #view-container > div:first-child {
+    gap: 20px;
+  }
+  
+  .card { 
+    width: 100%;
+    min-width: 215px;
+  }
+  
+  .modal-content { 
+    width: 92vw;
+    padding: 24px;
+  }
+}
+    </style>
+</head>
+<body>
+    <div id="role-modal" class="modal"></div>
+    <div id="app">
+        <header>
+            <h1>🚗 Car Showroom Dashboard</h1>
+            <button id="change-role-btn"></button>
+        </header>
+        <nav>
+            <button class="tab-btn active" data-tab="cars">Cars</button>
+            <button class="tab-btn" data-tab="clients">Clients</button>
+        </nav>
+        <div id="view-container"></div>
+    </div>
+    <div id="buy-modal" class="modal"></div>
+    <script>
+// Models
+const Car = Backbone.Model.extend({
+    defaults: {
+        model: '',
+        price: '',
+        status: 'Available',
+        photo: ''
+    }
+});
+const Client = Backbone.Model.extend({
+    defaults: {
+        name: '',
+        email: '',
+        carModel: '',
+        paymentMethod: ''
+    }
+});
+
+// Collections
+const CarList = Backbone.Collection.extend({ model: Car });
+const ClientList = Backbone.Collection.extend({ model: Client });
+
+const cars = new CarList([
+    { model: 'Toyota Camry', price: '25000', status: 'Available', photo:'' },
+    { model: 'Honda Civic', price: '22000', status: 'Available', photo:'' }
+]);
+const clients = new ClientList();
+
+// Main App View
+const AppView = Backbone.View.extend({
+    el: '#app',
+    events: {
+        'click #change-role-btn': 'toggleRole',
+        'click .tab-btn': 'switchTab'
+    },
+    initialize: function() {
+        this.role = localStorage.getItem('role') || 'client';
+        this.renderRoleButton();
+        this.currentTab = 'cars';
+        this.renderTab();
+        this.showRoleModal();
+    },
+    renderRoleButton: function() {
+        this.$('#change-role-btn').text('Switch to ' + (this.role === 'admin' ? 'Client' : 'Admin'));
+    },
+    toggleRole: function() {
+        this.role = this.role === 'admin' ? 'client' : 'admin';
+        localStorage.setItem('role', this.role);
+        this.renderRoleButton();
+        this.renderTab();
+    },
+    switchTab: function(e) {
+        $('.tab-btn').removeClass('active');
+        $(e.currentTarget).addClass('active');
+        this.currentTab = $(e.currentTarget).data('tab');
+        this.renderTab();
+    },
+    renderTab: function() {
+        if(this.currentTab === 'cars') {
+            new CarListView({ collection: cars, role: this.role });
+        } else if(this.currentTab === 'clients') {
+            new ClientListView({ collection: clients, role: this.role });
+        }
+    },
+    showRoleModal: function() {
+        if(!localStorage.getItem('roleSet')) {
+            $('#role-modal').html(`
+                <div class="modal-content">
+                    <h3>Select Your Role</h3>
+                    <button id="modal-client">🛒 Client</button>
+                    <button id="modal-admin">👨‍💼 Admin</button>
+                </div>
+            `).css('display', 'flex');
+            $('#modal-client').click(()=>{ this.setRole('client'); });
+            $('#modal-admin').click(()=>{ this.setRole('admin'); });
+        }
+    },
+    setRole: function(role) {
+        this.role = role;
+        localStorage.setItem('role', role);
+        localStorage.setItem('roleSet', '1');
+        $('#role-modal').hide();
+        this.renderRoleButton();
+        this.renderTab();
+    }
+});
+
+const CarListView = Backbone.View.extend({
+    el: '#view-container',
+    initialize: function(options) {
+        this.role = options.role;
+        this.render();
+    },
+    events: {
+        'click .buy-now-btn': 'buyNow',
+        'click #add-car-btn': 'showAddForm',
+        'click .delete-car-btn': 'deleteCar',
+        'click .edit-car-btn': 'showEditForm'
+    },
+    render: function() {
+        let html = '';
+        if(this.role === 'admin') {
+            html += `<button id="add-car-btn">➕ Add Car</button>`;
+        }
+        html += '<div>';
+        this.collection.each(car => {
+            const cardImg = car.get('photo') || 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=400&h=300&fit=crop';
+            html += `
+                <div class="card">
+                    <img class="card-photo" src="${cardImg}" alt="Car Image" />
+                    <div class="card-model">${car.get('model')}</div>
+                    <div class="card-price">$${car.get('price')}</div>
+                    ${car.get('status') === 'Available' ?
+                      `<div class="card-status" style="color: #10b981; background: rgba(16, 185, 129, 0.1);">${car.get('status')}</div>` :
+                      `<div class="card-status" style="color: #ef4444; background: rgba(239, 68, 68, 0.1);">${car.get('status')}</div>`}
+                    <div class="card-buttons">
+                        ${car.get('status') === 'Available' && this.role === 'client' ?
+                          `<button class="buy-now-btn" data-id="${car.cid}">🛒 Buy Now</button>` : ''}
+                        ${this.role === 'admin' ?
+                            `<button class="edit-car-btn" data-id="${car.cid}">✏️ Edit</button>
+                             <button class="delete-car-btn" data-id="${car.cid}">🗑️ Delete</button>` : ''}
+                    </div>
+                </div>
+            `;
+        });
+        html += '</div>';
+        this.$el.html(html);
+    },
+    buyNow: function(e) {
+        const cid = $(e.currentTarget).data('id');
+        const car = this.collection.get(cid);
+        $('#buy-modal').html(`
+            <div class="modal-content">
+                <h3>Purchase: ${car.get('model')}</h3>
+                <input id="client-name" type="text" placeholder="Full Name">
+                <input id="client-email" type="email" placeholder="Email Address">
+                <select id="payment-method">
+                    <option value="Credit Card">💳 Credit Card</option>
+                    <option value="Paypal">💰 PayPal</option>
+                    <option value="Bank Transfer">🏦 Bank Transfer</option>
+                </select>
+                <button id="confirm-buy">✓ Confirm Purchase</button>
+                <button id="cancel-buy" style="background: #6b7280; box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);">Cancel</button>
+            </div>
+        `).css('display', 'flex');
+        $('#cancel-buy').click(()=>{ $('#buy-modal').hide(); });
+        $('#confirm-buy').click(()=>{
+            const name = $('#client-name').val();
+            const email = $('#client-email').val();
+            const method = $('#payment-method').val();
+            if(name && email) {
+                clients.add({
+                    name, email, carModel: car.get('model'), paymentMethod: method
+                });
+                car.set('status', 'Sold');
+                $('#buy-modal').hide();
+                this.render();
+            } else {
+                alert('Please fill in all fields');
+            }
+        });
+    },
+    showAddForm: function() {
+        $('#buy-modal').html(`
+            <div class="modal-content">
+                <h3>Add New Car</h3>
+                <img id="car-photo-preview" src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=400&h=300&fit=crop"/>
+                <label for="car-photo" class="upload-label">📸 Upload Photo</label>
+                <input id="car-photo" type="file" accept="image/*">
+                <input id="car-model" type="text" placeholder="Car Model (e.g., Toyota Camry)">
+                <input id="car-price" type="text" placeholder="Price (e.g., 25000)">
+                <button id="save-car">💾 Save Car</button>
+                <button id="cancel-car" style="background: #6b7280; box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);">Cancel</button>
+            </div>
+        `).css('display', 'flex');
+
+        $('#cancel-car').click(()=>{ $('#buy-modal').hide(); });
+
+        $('#car-photo').change(function(e){
+            const file = e.target.files[0];
+            if(file){
+                const reader = new FileReader();
+                reader.onload = function(e){
+                    $('#car-photo-preview').attr('src', e.target.result);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        $('#save-car').click(()=>{
+            const model = $('#car-model').val();
+            const price = $('#car-price').val();
+            const fileInput = $('#car-photo')[0];
+            if(model && price) {
+                if(fileInput.files && fileInput.files[0]){
+                    const reader = new FileReader();
+                    reader.onload = function(e){
+                        cars.add({ model, price, status: 'Available', photo: e.target.result });
+                        $('#buy-modal').hide();
+                        this.render();
+                    }.bind(this);
+                    reader.readAsDataURL(fileInput.files[0]);
+                } else {
+                    cars.add({ model, price, status: 'Available' });
+                    $('#buy-modal').hide();
+                    this.render();
+                }
+            } else {
+                alert('Please fill in all fields');
+            }
+        });
+    },
+    showEditForm: function(e) {
+        const cid = $(e.currentTarget).data('id');
+        const car = this.collection.get(cid);
+        $('#buy-modal').html(`
+            <div class="modal-content">
+                <h3>Edit Car Details</h3>
+                <img id="car-photo-preview-edit" src="${car.get('photo') || 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=400&h=300&fit=crop'}"/>
+                <label for="car-photo-edit" class="upload-label">📸 Change Photo</label>
+                <input id="car-photo-edit" type="file" accept="image/*">
+                <input id="car-model-edit" type="text" value="${car.get('model')}">
+                <input id="car-price-edit" type="text" value="${car.get('price')}">
+                <button id="update-car">✓ Update Car</button>
+                <button id="cancel-edit" style="background: #6b7280; box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);">Cancel</button>
+            </div>
+        `).css('display', 'flex');
+        $('#cancel-edit').click(()=>{ $('#buy-modal').hide(); });
+        $('#car-photo-edit').change(function(e){
+            const file = e.target.files[0];
+            if(file){
+                const reader = new FileReader();
+                reader.onload = function(e){
+                    $('#car-photo-preview-edit').attr('src', e.target.result);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        $('#update-car').click(()=>{
+            car.set('model', $('#car-model-edit').val());
+            car.set('price', $('#car-price-edit').val());
+            const fileInput = $('#car-photo-edit')[0];
+            if(fileInput.files && fileInput.files[0]){
+                const reader = new FileReader();
+                reader.onload = function(e){
+                    car.set('photo', e.target.result);
+                    $('#buy-modal').hide();
+                    this.render();
+                }.bind(this);
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                $('#buy-modal').hide();
+                this.render();
+            }
+        });
+    },
+    deleteCar: function(e) {
+        if(confirm('Are you sure you want to delete this car?')) {
+            const cid = $(e.currentTarget).data('id');
+            this.collection.remove(cid);
+            this.render();
+        }
+    }
+});
+
+const ClientListView = Backbone.View.extend({
+    el: '#view-container',
+    initialize: function(options) {
+        this.role = options.role;
+        this.render();
+    },
+    render: function() {
+        let html = '<h2>📋 Client Purchase History</h2><div>';
+        if(this.collection.length === 0) {
+            html += '<div class="card" style="width: 100%; text-align: center; padding: 40px;"><p style="font-size: 1.1em; color: #6b7280;">No purchases yet.</p></div>';
+        } else {
+            this.collection.each(client=>{
+                html += `
+                    <div class="card" style="align-items:flex-start; text-align: left;">
+                        <div style="margin-bottom: 12px;">
+                            <strong style="font-size: 1.15em; color: #1a1a2e;">👤 ${client.get('name')}</strong>
+                        </div>
+                        <div style="color: #6b7280; margin-bottom: 6px;">
+                            📧 ${client.get('email')}
+                        </div>
+                        <div style="color: #4a5568; margin-bottom: 6px;">
+                            🚗 <strong>Car:</strong> ${client.get('carModel')}
+                        </div>
+                        <div style="color: #4a5568;">
+                            💳 <strong>Payment:</strong> ${client.get('paymentMethod')}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+        html += '</div>';
+        this.$el.html(html);
+    }
+});
+
+// App Entry
+$(function(){
+    new AppView();
+    $(document).on('click', '.modal', function(e){
+        if(e.target === this) $(this).hide();
+    });
+});
+    </script>
+</body>
+</html>
